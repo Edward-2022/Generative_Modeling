@@ -164,7 +164,7 @@ class DeepConvexFlow(torch.nn.Module):
             est2 = 0
             
         end.record()
-        CG_LIST.append(start.elapsed_time(end))
+        CG_TIMES.append(start.elapsed_time(end))
 
         return f, logdet + est1 if self.training else logdet + est2
 
@@ -195,7 +195,7 @@ class DeepConvexFlow(torch.nn.Module):
         f = f.reshape(bsz, *input_shape)
         logdet = logdet + torch.slogdet(H).logabsdet
         end.record()
-        BRUTE_FORCE_LIST.append(start.elapsed_time(end))
+        BRUTE_FORCE_TIMES.append(start.elapsed_time(end))
         return f, logdet
 
     def extra_repr(self):
