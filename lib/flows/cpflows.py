@@ -110,9 +110,9 @@ class DeepConvexFlow(torch.nn.Module):
         return f
 
     def forward_transform(self, x, logdet=0, context=None, extra=None):
-        if self.training or self.no_bruteforce:
-            return self.forward_transform_stochastic(x, logdet, context=context, extra=extra)
-        else:
+        #if self.training or self.no_bruteforce:
+            #return self.forward_transform_stochastic(x, logdet, context=context, extra=extra)
+        #else:
             return self.forward_transform_bruteforce(x, logdet, context=context)
 
     def forward_transform_stochastic(self, x, logdet=0, context=None, extra=None):
@@ -162,27 +162,33 @@ class DeepConvexFlow(torch.nn.Module):
 
     def forward_transform_bruteforce(self, x, logdet=0, context=None):
         warnings.warn('brute force')
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         bsz = x.shape[0]
         input_shape = x.shape[1:]
 
         with torch.enable_grad():
             x.requires_grad_(True)
-            F = self.get_potential(x, context)
-            f = torch.autograd.grad(F.sum(), x, create_graph=True)[0]
+            F = self.get_potential(x, context) #O(theta)
+            f = torch.autograd.grad(F.sum(), x, create_graph=True)[0] #O(theta)
 
             # TODO: compute Hessian in block mode instead of row-by-row.
             f = f.reshape(bsz, -1)
             H = []
-            for i in range(f.shape[1]):
+            for i in range(f.shape[1]): #O(n)
                 retain_graph = self.training or (i < (f.shape[1] - 1))
                 H.append(
-                    torch.autograd.grad(f[:, i].sum(), x, create_graph=self.training, retain_graph=retain_graph)[0])
-
+                    torch.autograd.grad(f[:, i].sum(), x, create_graph=self.training, retain_graph=retain_graph)[0]) #O(n*theta)
+                    # Step above is the costly step
             # H is (bsz, dim, dim)
             H = torch.stack(H, dim=1)
 
         f = f.reshape(bsz, *input_shape)
-        return f, logdet + torch.slogdet(H).logabsdet
+        logdet = logdet + torch.slogdet(H).logabsdet
+        end.record()
+        print(start.elapsed_time(end))
+        return f, logdet
 
     def extra_repr(self):
         return f"ConjGrad(rtol={self.rtol}, atol={self.atol})"
