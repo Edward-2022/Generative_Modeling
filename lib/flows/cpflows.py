@@ -116,6 +116,9 @@ class DeepConvexFlow(torch.nn.Module):
             return self.forward_transform_bruteforce(x, logdet, context=context)
 
     def forward_transform_stochastic(self, x, logdet=0, context=None, extra=None):
+        start = torch.cuda.Event(enable_timing=True)
+        end = torch.cuda.Event(enable_timing=True)
+        start.record()
         bsz, *dims = x.shape
         dim = np.prod(dims)
 
@@ -157,6 +160,9 @@ class DeepConvexFlow(torch.nn.Module):
                 extra[0] = extra[0] + est2.detach()
         else:
             est2 = 0
+            
+        end.record()
+        print(start.elapsed_time(end))
 
         return f, logdet + est1 if self.training else logdet + est2
 
