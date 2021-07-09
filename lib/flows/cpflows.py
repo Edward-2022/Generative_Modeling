@@ -9,6 +9,8 @@ import gc
 import warnings
 
 HESS_NORM_TRACER = list()
+CG_TIMES = list()
+BRUTE_FORCE_TIMES = list()
 
 
 # noinspection PyPep8Naming
