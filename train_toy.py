@@ -99,11 +99,11 @@ torch.set_default_dtype(torch.float64)
 
 # noinspection PyUnresolvedReferences
 train_loader = torch.utils.data.DataLoader(
-    ToyData(50000),
+    ToyData(500),
     batch_size=batch_size_train, shuffle=True)
 # noinspection PyUnresolvedReferences
 test_loader = torch.utils.data.DataLoader(
-    ToyData(10000),
+    ToyData(100),
     batch_size=batch_size_test, shuffle=True)
 
 folder_name = f'figures/toy/{prefix}_{dataset}'
@@ -117,7 +117,7 @@ def savefig(fn):
 
 fig = plt.figure(figsize=(5, 5))
 ax = fig.add_subplot(1, 1, 1)
-spls = train_loader.dataset.sample(100000).data.numpy()
+spls = train_loader.dataset.sample(1000).data.numpy()
 H, _, _ = np.histogram2d(spls[:, 0], spls[:, 1], 200, range=[[-4, 4], [-4, 4]])
 plt.imshow(H.T, cmap=cmap)
 ax.get_xaxis().set_ticks([])
