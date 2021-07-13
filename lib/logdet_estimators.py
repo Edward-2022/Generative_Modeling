@@ -196,6 +196,50 @@ def conjugate_gradient(hvp, b, m=10, rtol=0.0, atol=1e-3):
 
 
 # noinspection PyPep8Naming
+def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
+    x = b.clone().detach()
+    r = b - hvp(x)
+    tol = atol + rtol * torch.abs(x)
+    if (torch.abs(r) < tol).all():
+        CG_ITERS_TRACER.append(0)
+        return x
+    
+    #define preconditioning matrix here
+    #L, _ = eigenvalues and eigenvectors?
+    Lambda, Z = torch.linalg.eigh(T)
+    L = torch.diagflat(1/Lambda)
+    Z_k = torch.matmul(V, Z)
+    z = M(hvp(r), L, Z_k, r)
+    p = z
+    k = 0
+    
+    while k < m:
+        k += 1
+        Ap = hvp(p)
+        a = batch_dot_product(r, z) / batch_dot_product(Ap, p)
+        x = x + a*p
+        r_prev = r
+        r = r - a*Ap
+        z_prev = z
+        z = M(hvp(r), L, Z_k, r)
+        tol = atol + rtol * torch.abs(x)
+        if (torch.abs(r) < tol).all():
+            break
+        beta = batch_dot_product(r,z)/batch_dot_product(r_prev,z_prev)
+        p = z + beta * p
+        CG_ITERS_TRACER.append(k)
+  return x
+
+# noinspection PyPep8Naming
+def M(b_1, L, Z_k, r):
+  b_2 = batch_dot_product(Z_k.T, r)
+  b_3 = batch_dot_product(Z_k, b_2)
+  b_2 = batch_dot_product(Z_k, batch_dot_product(L, b_2))
+  b = b_1 - b_2 + b_3
+  return b
+
+
+# noinspection PyPep8Naming
 def stochastic_logdet_gradient_estimator(hvp_fun, v, m, rtol=0.0, atol=1e-3):
     with torch.no_grad():
         v_Hinv = conjugate_gradient(hvp_fun, v, m, rtol=rtol, atol=atol)
