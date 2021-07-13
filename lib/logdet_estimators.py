@@ -115,7 +115,7 @@ def lanczos_tridiagonalization(hvp_fun, m, v):
     betas = torch.stack(betas, dim=-1)
 
     T = torch.diag_embed(betas, offset=-1) + torch.diag_embed(alphas, offset=0) + torch.diag_embed(betas, offset=1)
-    return T
+    return T, Q
 
 
 # noinspection PyPep8Naming
@@ -153,7 +153,7 @@ def deterministic_quadrature(T, dim):
 # noinspection PyPep8Naming
 def stochastic_lanczos_quadrature(hvp_fun, v, m, func=torch.log):
     bsz, dim = v.shape
-    T = lanczos_tridiagonalization(hvp_fun, m, v)
+    T, V = lanczos_tridiagonalization(hvp_fun, m, v)
     return stochastic_quadrature(T, dim, func=func)
 
 
@@ -243,6 +243,7 @@ def M(b_1, L, Z_k, r):
 def stochastic_logdet_gradient_estimator(hvp_fun, v, m, rtol=0.0, atol=1e-3):
     with torch.no_grad():
         v_Hinv = conjugate_gradient(hvp_fun, v, m, rtol=rtol, atol=atol)
+        #T, V = lanczos_tridiagonalization(hvp_fun, m, v)
         #v_Hinv = preconditioned_conjugate_gradient(hvp_fun, v, T, V, m, rtol=rtol, atol=atol)
     surrog_logdet = torch.sum(hvp_fun(v_Hinv) * v, dim=1)
     return surrog_logdet
