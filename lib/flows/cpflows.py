@@ -112,9 +112,9 @@ class DeepConvexFlow(torch.nn.Module):
         return f
 
     def forward_transform(self, x, logdet=0, context=None, extra=None):
-        #if self.training or self.no_bruteforce:
-            #return self.forward_transform_stochastic(x, logdet, context=context, extra=extra)
-        #else:
+        if self.training or self.no_bruteforce:
+            return self.forward_transform_stochastic(x, logdet, context=context, extra=extra)
+        else:
             return self.forward_transform_bruteforce(x, logdet, context=context)
 
     def forward_transform_stochastic(self, x, logdet=0, context=None, extra=None):
