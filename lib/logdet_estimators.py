@@ -207,7 +207,7 @@ def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
     #define preconditioning matrix here
     #L, _ = eigenvalues and eigenvectors?
     Lambda, Z = torch.linalg.eigh(T)
-    L = torch.diagflat(1/Lambda)
+    L = 1/Lambda
     Z_k = torch.matmul(V, Z)
     z = M(hvp(r), L, Z_k, r)
     p = z
@@ -230,12 +230,32 @@ def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
     CG_ITERS_TRACER.append(k)
     return x
 
+
 # noinspection PyPep8Naming
 def M(b_1, L, Z_k, r):
-  b_2 = torch.matmul(Z_k.T, r)
-  b_3 = torch.matmul(Z_k, b_2)
-  b_2 = torch.matmul(Z_k, torch.matmul(L, b_2))
+  b_1 = torch.unsqueeze(b_1, 2)
+  #print(b_1.shape)
+  t = torch.transpose(Z_k, 1, 2)
+  r = torch.unsqueeze(r, 2)
+  #print(t.shape)
+  #print(r.shape)
+  b_2 = torch.matmul(t, r)
+  #print(b_2.shape)
+  #b_3 = torch.matmul(Z_k, b_2)
+  #print(b_3.shape)
+  #print(L.shape)
+  #print(Z_k.shape)
+  #b_2 = torch.matmul(L, b_2)
+  #b_2 = torch.squeeze(b_2)
+  #print(b_2.shape)
+  #print(Z_k.shape)
+  #b_2 = torch.matmul(Z_k, b_2)
+  b_3 = torch.matmul(torch.matmul(Z_k, t), r)
+  print(b_1.shape)
+  print(b_2.shape)
+  print(b_3.shape)
   b = b_1 - b_2 + b_3
+  b = torch.squeeze(b)
   return b
 
 
