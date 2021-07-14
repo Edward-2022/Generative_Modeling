@@ -227,8 +227,8 @@ def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
             break
         beta = batch_dot_product(r,z)/batch_dot_product(r_prev,z_prev)
         p = z + beta * p
-        CG_ITERS_TRACER.append(k)
-  return x
+    CG_ITERS_TRACER.append(k)
+    return x
 
 # noinspection PyPep8Naming
 def M(b_1, L, Z_k, r):
