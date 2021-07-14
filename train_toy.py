@@ -305,112 +305,112 @@ if nblocks == 1 and flow_type == 'cpflow':
     f = f.cpu().data.numpy()
 
     # plotting potential's gradient field
-    plt.figure(figsize=(5, 5))
-    plt.quiver(f[:, 0].reshape(n, n)[::2, ::2], f[:, 1].reshape(n, n)[::2, ::2],
-               torch.exp(logp_).data.numpy().reshape(n, n)[::2, ::2])
-    plt.axis('off')
-    plt.tight_layout()
-    savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_grad.png')
+    #plt.figure(figsize=(5, 5))
+    #plt.quiver(f[:, 0].reshape(n, n)[::2, ::2], f[:, 1].reshape(n, n)[::2, ::2],
+     #          torch.exp(logp_).data.numpy().reshape(n, n)[::2, ::2])
+   # plt.axis('off')
+    #plt.tight_layout()
+    #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_grad.png')
 
     # plotting gradient map
-    plt.figure(figsize=(5, 5))
-    plt.plot(f[:, 0], f[:, 1], 'x')
-    plt.axis('off')
-    plt.tight_layout()
+    #plt.figure(figsize=(5, 5))
+    #plt.plot(f[:, 0], f[:, 1], 'x')
+    #plt.axis('off')
+    #plt.tight_layout()
 
-    plt.vlines(b, -b, b, color='red')
-    plt.vlines(-b, -b, b, color='red')
-    plt.hlines(b, -b, b, color='red')
-    plt.hlines(-b, -b, b, color='red')
-    savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z.png')
+    #plt.vlines(b, -b, b, color='red')
+    #plt.vlines(-b, -b, b, color='red')
+    #plt.hlines(b, -b, b, color='red')
+    #plt.hlines(-b, -b, b, color='red')
+    #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z.png')
 
-    plt.figure(figsize=(5, 5))
-    data = data.data.numpy()
-    fx = data[:, 0].reshape(n, n)
-    fy = data[:, 1].reshape(n, n)
-    for i in range(n):
-        plt.plot(fx[i, :], fy[i, :])
-        plt.plot(fx[:, i], fy[:, i])
-    plt.axis('off')
-    plt.tight_layout()
-    savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_x_meshgrid.png')
+    #plt.figure(figsize=(5, 5))
+    #data = data.data.numpy()
+    #fx = data[:, 0].reshape(n, n)
+    #fy = data[:, 1].reshape(n, n)
+    #for i in range(n):
+     #   plt.plot(fx[i, :], fy[i, :])
+      #  plt.plot(fx[:, i], fy[:, i])
+    #plt.axis('off')
+    #plt.tight_layout()
+    #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_x_meshgrid.png')
 
-    plt.figure(figsize=(5, 5))
-    fx = f[:, 0].reshape(n, n)
-    fy = f[:, 1].reshape(n, n)
-    for i in range(n):
-        plt.plot(fx[i, :], fy[i, :])
-        plt.plot(fx[:, i], fy[:, i])
-    plt.axis('off')
-    plt.tight_layout()
-    savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z_meshgrid.png')
+    #plt.figure(figsize=(5, 5))
+    #fx = f[:, 0].reshape(n, n)
+    #fy = f[:, 1].reshape(n, n)
+    #for i in range(n):
+     #   plt.plot(fx[i, :], fy[i, :])
+      #  plt.plot(fx[:, i], fy[:, i])
+    #plt.axis('off')
+    #plt.tight_layout()
+    #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z_meshgrid.png')
 
     # plot convex congjugate
-    x_inv = fl.reverse(x)
-    F_inv = fl.get_potential(x_inv)
-    cc = (x * x_inv).sum(1, keepdim=True) - F_inv
+    #x_inv = fl.reverse(x)
+    #F_inv = fl.get_potential(x_inv)
+    #cc = (x * x_inv).sum(1, keepdim=True) - F_inv
 
-    f = cc.data.numpy()
+    #f = cc.data.numpy()
     # plotting potential
-    plt.figure(figsize=(5, 5))
-    plt.contour(f.reshape(n, n), levels=20)
-    plt.axis('off')
-    plt.tight_layout()
+    #plt.figure(figsize=(5, 5))
+    #plt.contour(f.reshape(n, n), levels=20)
+    #plt.axis('off')
+    #plt.tight_layout()
 
-    num_samples = 2000
-    if num_samples:
-        z = torch.randn(num_samples, 2) * np.exp(0.5 * plogv)
-        x = fl.reverse(z)
-        x = flow.flows[0].reverse(x)
-        x = x.data.numpy()
-        z = z.data.numpy()
-
-        # noinspection PyUnresolvedReferences
-        colors = cm.rainbow(np.linspace(0, 1, num_samples))
-        ind = np.argsort((z**2).sum(1))
-        x = x[ind]
-        z = z[ind]
-
-        plt.figure(figsize=(5, 5))
-        plt.scatter(z[:, 0], -z[:, 1], s=3, color=colors)
-        plt.axis('off')
-        plt.tight_layout()
-        savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z_sample.png')
-
-        plt.figure(figsize=(5, 5))
-        plt.scatter(x[:, 0], -x[:, 1], s=3, color=colors)
-        plt.axis('off')
-        plt.tight_layout()
-        savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_x_sample.png')
-
-        ani = interpolate_gif(x, z)
+    #num_samples = 2000
+    #if num_samples:
+     #   z = torch.randn(num_samples, 2) * np.exp(0.5 * plogv)
+      #  x = fl.reverse(z)
+       # x = flow.flows[0].reverse(x)
+        #x = x.data.numpy()
+        #z = z.data.numpy()
 
         # noinspection PyUnresolvedReferences
-        Writer = matplotlib.animation.writers['ffmpeg']
-        writer = Writer(fps=30, bitrate=1800)
+        #colors = cm.rainbow(np.linspace(0, 1, num_samples))
+        #ind = np.argsort((z**2).sum(1))
+        #x = x[ind]
+        #z = z[ind]
 
-        if save:
-            ani.save(f'{folder_name}/{ToyData.__name__}_{nblocks}_{depth}_{k}_x_sample.gif', writer=writer)
+        #plt.figure(figsize=(5, 5))
+        #plt.scatter(z[:, 0], -z[:, 1], s=3, color=colors)
+        #plt.axis('off')
+        #plt.tight_layout()
+        #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z_sample.png')
+
+        #plt.figure(figsize=(5, 5))
+        #plt.scatter(x[:, 0], -x[:, 1], s=3, color=colors)
+        #plt.axis('off')
+        #plt.tight_layout()
+        #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_x_sample.png')
+
+        #ani = interpolate_gif(x, z)
+
+        # noinspection PyUnresolvedReferences
+        #Writer = matplotlib.animation.writers['ffmpeg']
+        #writer = Writer(fps=30, bitrate=1800)
+
+        #if save:
+         #   ani.save(f'{folder_name}/{ToyData.__name__}_{nblocks}_{depth}_{k}_x_sample.gif', writer=writer)
 
     # plotting x and z = f(x)
-    if ToyData.__name__ == 'EightGaussian':
+    #if ToyData.__name__ == 'EightGaussian':
         # noinspection PyArgumentList
-        x, c = ToyData(1).sample(1000, True)
-        z = flow.forward_transform(x)[0]
-        z = z.data.numpy()
+    #    x, c = ToyData(1).sample(1000, True)
+     #   z = flow.forward_transform(x)[0]
+      #  z = z.data.numpy()
         # noinspection PyUnresolvedReferences
-        colors = cm.jet(np.linspace(0, 1, 8))
-        plt.figure(figsize=(5, 5))
-        for i in range(8):
-            plt.scatter(z[c == i, 0], z[c == i, 1], color=colors[i])
-        plt.axis('off')
-        plt.tight_layout()
-        savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z_encode.png')
+     #   colors = cm.jet(np.linspace(0, 1, 8))
+      #  plt.figure(figsize=(5, 5))
+       # for i in range(8):
+        #    plt.scatter(z[c == i, 0], z[c == i, 1], color=colors[i])
+        #plt.axis('off')
+        #plt.tight_layout()
+        #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_z_encode.png')
 
-        plt.figure(figsize=(5, 5))
-        x = x.data.numpy()
-        for i in range(8):
-            plt.scatter(x[c == i, 0], x[c == i, 1], color=colors[i])
-        plt.axis('off')
-        plt.tight_layout()
-        savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_x_raw.png')
+        #plt.figure(figsize=(5, 5))
+        #x = x.data.numpy()
+        #for i in range(8):
+         #   plt.scatter(x[c == i, 0], x[c == i, 1], color=colors[i])
+        #plt.axis('off')
+        #plt.tight_layout()
+        #savefig(f'{ToyData.__name__}_{nblocks}_{depth}_{k}_x_raw.png')
