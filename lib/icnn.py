@@ -96,7 +96,7 @@ class PosConv2d(torch.nn.Conv2d):
         self.fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
 
     def forward(self, x: Tensor) -> Tensor:
-        return self._conv_forward(x, torch.nn.functional.softplus(self.weight)) / self.fan_in
+        return self._conv_forward(x, torch.nn.functional.softplus(self.weight), self.bias) / self.fan_in
 
 
 # noinspection PyPep8Naming,PyTypeChecker
