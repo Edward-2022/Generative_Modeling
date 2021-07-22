@@ -171,10 +171,10 @@ def conjugate_gradient(hvp, b, m=10, rtol=0.0, atol=1e-3):
         v is (bsz, dim) and output shape should be (bsz, dim).
     """
     
-    logdet_estimators/CG_COUNT +=1
+    logdet_estimators.CG_COUNT +=1
     
-    if logdet_estimators/CG_COUNT <= 5:
-        return preconditioned_conjugate_gradient(hvp, b, logdet_estimators/T, logdet_estimators/QLANZCOS, m=10, rtol=0.0, atol=1e-3)
+    if logdet_estimators.CG_COUNT <= 5:
+        return preconditioned_conjugate_gradient(hvp, b, logdet_estimators.T, logdet_estimators.QLANZCOS, m=10, rtol=0.0, atol=1e-3)
         
     # initialization
     # could also initialize other ways, e.g. `x = torch.ones_like(b)`
