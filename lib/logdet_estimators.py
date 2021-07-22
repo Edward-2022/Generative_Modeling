@@ -6,7 +6,9 @@ import torch.nn.functional as F
 
 EPS = 1e-7
 CG_ITERS_TRACER = list()
-
+T=0
+QLAZCOS=0
+CG_COUNT = 0
 
 # noinspection PyPep8Naming
 def gram_schmidt_ortho(Q, v, tol=1e-5):
@@ -75,6 +77,7 @@ def lanczos_tridiagonalization(hvp_fun, m, v):
         A tridiagonal matrix (m, m) resulting from the Lanczos method.
     """
     bsz, d = v.shape
+    CG_COUNT = 0
 
     # Multiple torch.stack; need better implementation.
     vecs = [v]
@@ -115,6 +118,7 @@ def lanczos_tridiagonalization(hvp_fun, m, v):
     betas = torch.stack(betas, dim=-1)
 
     T = torch.diag_embed(betas, offset=-1) + torch.diag_embed(alphas, offset=0) + torch.diag_embed(betas, offset=1)
+    QLANZCOS = Q
     return T, Q
 
 
@@ -166,6 +170,12 @@ def conjugate_gradient(hvp, b, m=10, rtol=0.0, atol=1e-3):
     """ Solves H^{-1} v using m iterations of conjugate gradient.
         v is (bsz, dim) and output shape should be (bsz, dim).
     """
+    
+    CG_COUNT +=1
+    
+    if CG_COUNT <= 5:
+        return preconditioned_conjugate_gradient(hvp, b, T, QLANZCOS, m=10, rtol=0.0, atol=1e-3)
+        
     # initialization
     # could also initialize other ways, e.g. `x = torch.ones_like(b)`
     x = b.clone().detach()
