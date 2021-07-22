@@ -8,7 +8,7 @@ EPS = 1e-7
 CG_ITERS_TRACER = list()
 T=0
 QLANZCOS=0
-CG_COUNT = 0
+CG_COUNT = 1000
 
 # noinspection PyPep8Naming
 def gram_schmidt_ortho(Q, v, tol=1e-5):
@@ -170,11 +170,11 @@ def conjugate_gradient(hvp, b, m=10, rtol=0.0, atol=1e-3):
     """ Solves H^{-1} v using m iterations of conjugate gradient.
         v is (bsz, dim) and output shape should be (bsz, dim).
     """
+    global CG_COUNT
+    CG_COUNT +=1
     
-    logdet_estimators.CG_COUNT +=1
-    
-    if logdet_estimators.CG_COUNT <= 5:
-        return preconditioned_conjugate_gradient(hvp, b, logdet_estimators.T, logdet_estimators.QLANZCOS, m=10, rtol=0.0, atol=1e-3)
+    if CG_COUNT <= 5:
+        return preconditioned_conjugate_gradient(hvp, b, T, QLANZCOS, m=10, rtol=0.0, atol=1e-3)
         
     # initialization
     # could also initialize other ways, e.g. `x = torch.ones_like(b)`
