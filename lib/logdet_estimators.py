@@ -261,9 +261,9 @@ def M(b_1, L, Z_k, r):
   #print(Z_k.shape)
   #b_2 = torch.matmul(Z_k, b_2)
   b_3 = torch.matmul(torch.matmul(Z_k, t), r)
-  print(b_1.shape)
-  print(b_2.shape)
-  print(b_3.shape)
+  #print(b_1.shape)
+  #print(b_2.shape)
+  #print(b_3.shape)
   b = b_1 - b_2 + b_3
   b = torch.squeeze(b)
   return b
