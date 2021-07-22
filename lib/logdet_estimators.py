@@ -272,9 +272,9 @@ def M(b_1, L, Z_k, r):
 # noinspection PyPep8Naming
 def stochastic_logdet_gradient_estimator(hvp_fun, v, m, rtol=0.0, atol=1e-3):
     with torch.no_grad():
-        #v_Hinv = conjugate_gradient(hvp_fun, v, m, rtol=rtol, atol=atol)
-        T, V = lanczos_tridiagonalization(hvp_fun, m, v)
-        v_Hinv = preconditioned_conjugate_gradient(hvp_fun, v, T, V, m, rtol=rtol, atol=atol)
+        v_Hinv = conjugate_gradient(hvp_fun, v, m, rtol=rtol, atol=atol)
+        #T, V = lanczos_tridiagonalization(hvp_fun, m, v)
+        #v_Hinv = preconditioned_conjugate_gradient(hvp_fun, v, T, V, m, rtol=rtol, atol=atol)
     surrog_logdet = torch.sum(hvp_fun(v_Hinv) * v, dim=1)
     return surrog_logdet
 
