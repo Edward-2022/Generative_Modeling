@@ -7,7 +7,7 @@ import torch.nn.functional as F
 EPS = 1e-7
 CG_ITERS_TRACER = list()
 T=0
-QLAZCOS=0
+QLANZCOS=0
 CG_COUNT = 0
 
 # noinspection PyPep8Naming
