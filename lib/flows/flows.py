@@ -132,12 +132,12 @@ class SequentialFlow(torch.nn.Module):
         super(SequentialFlow, self).__init__()
         self.flows = torch.nn.ModuleList(flows)
 
-    def forward_transform(self, x, logdet=0, context=None, extra=None):
+    def forward_transform(self, x, logdet=0, context=None, extra=None,itr =0):
         for flow in self.flows:
             if isinstance(flow, cpflows.DeepConvexFlow) or isinstance(flow, NAFDSF):
                 x, logdet = flow.forward_transform(x, logdet,
                                                    context=context,
-                                                   extra=extra)
+                                                   extra=extra, itr =itr)
             else:
                 prev_logdet = logdet
                 x, logdet = flow.forward_transform(x, logdet)
@@ -151,8 +151,8 @@ class SequentialFlow(torch.nn.Module):
             x = flow.reverse(x, **kwargs)
         return x
 
-    def logp(self, x, context=None, extra=None):
-        z, logdet = self.forward_transform(x, context=context, extra=extra)
+    def logp(self, x, context=None, extra=None, itr =0):
+        z, logdet = self.forward_transform(x, context=context, extra=extra, itr = itr)
         logp0 = log_standard_normal(z).sum(-1)
         if extra is not None and len(extra) > 0:
             extra[0] = extra[0] + logp0.detach()
