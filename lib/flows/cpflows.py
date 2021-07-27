@@ -111,11 +111,12 @@ class DeepConvexFlow(torch.nn.Module):
             f = torch.autograd.grad(F.sum(), x, create_graph=True)[0]
         return f
 
-    def forward_transform(self, x, logdet=0, context=None, extra=None):
+    def forward_transform(self, x, logdet=0, context=None, extra=None, itr = 0):
+
         if self.training or self.no_bruteforce:
             return self.forward_transform_stochastic(x, logdet, context=context, extra=extra)
         else:
-            return self.forward_transform_bruteforce(x, logdet, context=context)
+            return self.forward_transform_bruteforce(x, logdet, context=context, itr =itr)
 
     def forward_transform_stochastic(self, x, logdet=0, context=None, extra=None):
         start = torch.cuda.Event(enable_timing=True)
@@ -168,11 +169,11 @@ class DeepConvexFlow(torch.nn.Module):
 
         return f, logdet + est1 if self.training else logdet + est2
 
-    def forward_transform_bruteforce(self, x, logdet=0, context=None):
+    def forward_transform_bruteforce(self, x, logdet=0, context=None, itr =0):
         warnings.warn('brute force')
-        start = torch.cuda.Event(enable_timing=True)
-        end = torch.cuda.Event(enable_timing=True)
-        start.record()
+        #start = torch.cuda.Event(enable_timing=True)
+        #end = torch.cuda.Event(enable_timing=True)
+        #start.record()
         bsz = x.shape[0]
         input_shape = x.shape[1:]
 
@@ -191,11 +192,19 @@ class DeepConvexFlow(torch.nn.Module):
                     # Step above is the costly step
             # H is (bsz, dim, dim)
             H = torch.stack(H, dim=1)
+            outfile = "out/minibooneeigenvalues" + str(itr).zfill(4)+ ".pt"
+            try:
+              eigs = torch.load(outfile)
+              torch.save(torch.cat((eigs,torch.linalg.eigh(H).eigenvalues)), outfile)
+            except FileNotFoundError:
+
+              torch.save(torch.linalg.eigh(H).eigenvalues, outfile)
+              
 
         f = f.reshape(bsz, *input_shape)
         logdet = logdet + torch.slogdet(H).logabsdet
-        end.record()
-        BRUTE_FORCE_TIMES.append(start.elapsed_time(end))
+        #end.record()
+        #BRUTE_FORCE_TIMES.append(start.elapsed_time(end))
         return f, logdet
 
     def extra_repr(self):
