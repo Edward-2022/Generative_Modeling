@@ -112,13 +112,14 @@ class DeepConvexFlow(torch.nn.Module):
         return f
 
     def forward_transform(self, x, logdet=0, context=None, extra=None, itr = 0):
-
+    #This function determines if we are estimating or directly computing log det H
         if self.training or self.no_bruteforce:
             return self.forward_transform_stochastic(x, logdet, context=context, extra=extra)
         else:
             return self.forward_transform_bruteforce(x, logdet, context=context, itr =itr)
 
     def forward_transform_stochastic(self, x, logdet=0, context=None, extra=None):
+        #Added timing option to measure how long it takes to estimate log det H
         start = torch.cuda.Event(enable_timing=True)
         end = torch.cuda.Event(enable_timing=True)
         start.record()
@@ -170,6 +171,8 @@ class DeepConvexFlow(torch.nn.Module):
         return f, logdet + est1 if self.training else logdet + est2
 
     def forward_transform_bruteforce(self, x, logdet=0, context=None, itr =0):
+        #Added timing capabilities as well as a built-in numerical experiment to plot the eigenvalues of the Hessian
+        #Utilizes the miniboone dataset.  Can specify the iteration 
         warnings.warn('brute force')
         #start = torch.cuda.Event(enable_timing=True)
         #end = torch.cuda.Event(enable_timing=True)
