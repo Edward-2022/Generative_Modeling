@@ -170,11 +170,9 @@ def conjugate_gradient(hvp, b, m=10, rtol=0.0, atol=1e-3):
     """ Solves H^{-1} v using m iterations of conjugate gradient.
         v is (bsz, dim) and output shape should be (bsz, dim).
     """
-    global CG_COUNT
-    CG_COUNT +=1
-    
-    if CG_COUNT <= 5:
-        return preconditioned_conjugate_gradient(hvp, b, T, QLANZCOS, m=10, rtol=0.0, atol=1e-3)
+    #To-Do: Tried to utilize a global variable in order to call Lanczos/pre-conditioner every x iterations
+    #global CG_COUNT
+    #CG_COUNT +=1
         
     # initialization
     # could also initialize other ways, e.g. `x = torch.ones_like(b)`
@@ -204,7 +202,8 @@ def conjugate_gradient(hvp, b, m=10, rtol=0.0, atol=1e-3):
     CG_ITERS_TRACER.append(k)
     return x
 
-
+###################################################################################
+#p-CG Implementation
 # noinspection PyPep8Naming
 def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
     x = b.clone().detach()
@@ -214,8 +213,6 @@ def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
         CG_ITERS_TRACER.append(0)
         return x
     
-    #define preconditioning matrix here
-    #L, _ = eigenvalues and eigenvectors?
     Lambda, Z = torch.linalg.eigh(T)
     L = 1/Lambda
     Z_k = torch.matmul(V, Z)
@@ -241,43 +238,29 @@ def preconditioned_conjugate_gradient(hvp, b, T, V, m=10, rtol=0.0, atol=1e-3):
     return x
 
 
+# Left Preconditioner Matrix Formation to be used in p-CG
 # noinspection PyPep8Naming
 def M(b_1, L, Z_k, r):
   b_1 = torch.unsqueeze(b_1, 2)
-  #print(b_1.shape)
   t = torch.transpose(Z_k, 1, 2)
   r = torch.unsqueeze(r, 2)
-  #print(t.shape)
-  #print(r.shape)
   b_2 = torch.matmul(t, r)
-  #print(b_2.shape)
-  #b_3 = torch.matmul(Z_k, b_2)
-  #print(b_3.shape)
-  #print(L.shape)
-  #print(Z_k.shape)
-  #b_2 = torch.matmul(L, b_2)
-  #b_2 = torch.squeeze(b_2)
-  #print(b_2.shape)
-  #print(Z_k.shape)
-  #b_2 = torch.matmul(Z_k, b_2)
   b_3 = torch.matmul(torch.matmul(Z_k, t), r)
-  #print(b_1.shape)
-  #print(b_2.shape)
-  #print(b_3.shape)
   b = b_1 - b_2 + b_3
   b = torch.squeeze(b)
   return b
 
 
 # noinspection PyPep8Naming
+#Can switch between using block CG and block p-CG by switching the comments below
 def stochastic_logdet_gradient_estimator(hvp_fun, v, m, rtol=0.0, atol=1e-3):
     with torch.no_grad():
-        v_Hinv = conjugate_gradient(hvp_fun, v, m, rtol=rtol, atol=atol)
-        #T, V = lanczos_tridiagonalization(hvp_fun, m, v)
-        #v_Hinv = preconditioned_conjugate_gradient(hvp_fun, v, T, V, m, rtol=rtol, atol=atol)
+        #v_Hinv = conjugate_gradient(hvp_fun, v, m, rtol=rtol, atol=atol)
+        T, V = lanczos_tridiagonalization(hvp_fun, m, v)
+        v_Hinv = preconditioned_conjugate_gradient(hvp_fun, v, T, V, m, rtol=rtol, atol=atol)
     surrog_logdet = torch.sum(hvp_fun(v_Hinv) * v, dim=1)
     return surrog_logdet
-
+###########################################################################################
 
 # noinspection PyPep8Naming
 def unbiased_logdet(hvp_fun, v, p=0.1, n_exact_terms=4):
